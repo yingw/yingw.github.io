@@ -92,7 +92,7 @@ bundle exec jekyll serve
 ![](/assets/images/201806/jekyll_server.png)
 启动成功后（大概一分钟），就可以访问：[http://localhost:4000]() 来使用模板了。
 
-![](/assets\images\201806\text_theme.png)
+![](/assets/images/201806/text_theme.png)
 
 >启动如果有报错字符集，那是因为 windows 的命令行工具默认字符集不是 UTF8，可以先执行 `chcp 65001`，再启动就可以
 ```sh
@@ -174,7 +174,7 @@ git push -u origin master
 - “主机记录” 设置为 *
 - “记录值” 就是 GitHub 的 yourname.github.io 域名
 
-![](/assets\images\201806\dns_setup.png)
+![](/assets/images/201806/dns_setup.png)
 
 最后回到我们的项目代码中，在根目录创建一个 CNAME 文件，文件内容就是一行上面申请的域名，来告诉 GitHub 运行这个域名引来的访问可以访问我们的空间。提交该文件。过一会等 GitHub Pages 编译好，就可以通过我们自己的域名访问博客了。
 
