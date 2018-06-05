@@ -78,6 +78,7 @@ git clone https://github.com/kitian616/jekyll-TeXt-theme.git
 - [https://gaohaoyang.github.io/]()
 - [http://jekyllthemes.org/themes/jekyll-theme-next/]()
 - [http://jekyllthemes.org/themes/simple-elegant/]()
+- [https://github.com/iissnan/hexo-theme-next]()
 
 ### 安装 Gem 依赖
 下载或克隆成功后，直接启动会有报错缺失 gem，先安装各依赖 Gem，进入项目目录：
