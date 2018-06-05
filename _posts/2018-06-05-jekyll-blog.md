@@ -94,8 +94,6 @@ bundle exec jekyll serve
 
 ![](/assets/images/201806/text_theme.png)
 
-![](/assets/images/201806/dns_setup.png)
-
 >启动如果有报错字符集，那是因为 windows 的命令行工具默认字符集不是 UTF8，可以先执行 `chcp 65001`，再启动就可以
 ```sh
 chcp 65001
@@ -175,8 +173,6 @@ git push -u origin master
 - “记录类型” 为 “CNAME”
 - “主机记录” 设置为 *
 - “记录值” 就是 GitHub 的 yourname.github.io 域名
-
-![](/assets/images/201806/text_theme.png)
 
 ![](/assets/images/201806/dns_setup.png)
 
