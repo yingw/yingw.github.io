@@ -90,10 +90,10 @@ bundle install
 ```sh
 bundle exec jekyll serve
 ```
-![](/assets/images/201806/jekyll_server.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/jekyll_server.png)
 启动成功后（大概一分钟），就可以访问：[http://localhost:4000]() 来使用模板了。
 
-![](/assets/images/201806/text_theme.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/text_theme.png)
 
 >启动如果有报错字符集，那是因为 windows 的命令行工具默认字符集不是 UTF8，可以先执行 `chcp 65001`，再启动就可以
 ```sh
@@ -147,6 +147,17 @@ Jekyll 在运行过程中是实时同步网页的变更的，只要保存了 md 
 
 至此，本地的开发环境已经准备好了，就可以本地边编写边查看网站效果了，下面要把网站提交到 GitHub Pages 上去。
 
+### 图片的相对路径
+
+前面提到，图片存放的位置和访问的路径。但是为了之后同时在网站、GitHub 代码库、其他笔记中访问都能得到正确的图片路径（之前的相对路径可以满足前两个，但是外部笔记就没有相对路径的目录），可以把图片的相对路径改为发布到 GitHub 后的代码库路径，比如：
+```markdown
+![](/assets/images/201806/jekyll_server.png)
+```
+改为
+```markdown
+![](https://raw.githubusercontent.com/yourname/yourname.github.io/master/assets/images/201806/jekyll_server.png)
+```
+
 ## 提交 GitHub Pages
 
 首先创建一个名为 yourname.github.io 的新的仓库，再将所有代码和自己创建的 _posts 都提交过去就好了。具体怎么提交就不细说了，大致：
@@ -175,7 +186,7 @@ git push -u origin master
 - “主机记录” 设置为 *
 - “记录值” 就是 GitHub 的 yourname.github.io 域名
 
-![](/assets/images/201806/dns_setup.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/dns_setup.png)
 
 最后回到我们的项目代码中，在根目录创建一个 CNAME 文件，文件内容就是一行上面申请的域名，来告诉 GitHub 运行这个域名引来的访问可以访问我们的空间。提交该文件。过一会等 GitHub Pages 编译好，就可以通过我们自己的域名访问博客了。
 
