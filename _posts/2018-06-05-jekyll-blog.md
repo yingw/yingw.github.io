@@ -2,6 +2,7 @@
 layout: article
 title: 用 Jekyll 搭建个人博客
 tags: Jekyll
+key: 2018-06-05-jekyll-blog
 ---
 
 # 用 Jekyll 搭建个人博客
@@ -90,10 +91,10 @@ bundle install
 ```sh
 bundle exec jekyll serve
 ```
-![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/jekyll_server.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/20180605_jekyll_server.png)
 启动成功后（大概一分钟），就可以访问：[http://localhost:4000]() 来使用模板了。
 
-![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/text_theme.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/20180605_text_theme.png)
 
 >启动如果有报错字符集，那是因为 windows 的命令行工具默认字符集不是 UTF8，可以先执行 `chcp 65001`，再启动就可以
 ```sh
@@ -119,7 +120,7 @@ taskkill /PID 207216
 - 可以删掉 `test`、`screenshots`、`docs` 目录
 - 需要引用的图片可以放在 `assets/images/` 目录下，引用的时候如：`http://localhost:4000/assets/images/octocat.jpg`
 - `_site` 是 Jekyll 运行时生成的网站代码，不要修改了这里的网页或者提交它们（已 gitignore）
-- 可以设置 **LeanCloud**（看 TeXt 文档） 来使用点击量统计功能
+- 可以设置 **LeanCloud**（看 TeXt 文档） 来使用点击量统计功能（注意要使用点击统计功能的话，md 文件头部的 key 字段不可省略）
 - 可以设置 **Gitalk** 来使用留言
 - 如果设置了时区启动报错，可以去 `Gemfile` 里把那句注释掉的 `gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]` 释放出来，重新 `bundle install` 运行就行了
 - 如上面截图，还有个 404 模板没找到的警告，暂时不知为何
@@ -137,6 +138,7 @@ taskkill /PID 207216
 layout: article
 title: 文章标题
 tag: jekyll
+key: 20180605_jekyll_blog
 ---
 ```
 这一段是必要的，其中 `layout` 是文章使用的模板，不用修改，`title` 是指文章的标题。还可以加上 `tags` 来给文章设定标签用来分类检索（多个关键字用英文的空格分隔）。
@@ -155,7 +157,7 @@ Jekyll 在运行过程中是实时同步网页的变更的，只要保存了 md 
 ```
 改为
 ```markdown
-![](https://raw.githubusercontent.com/yourname/yourname.github.io/master/assets/images/201806/jekyll_server.png)
+![](https://raw.githubusercontent.com/yourname/yourname.github.io/master/assets/images/201806/20180605_jekyll_server.png)
 ```
 
 ## 提交 GitHub Pages
@@ -186,7 +188,7 @@ git push -u origin master
 - “主机记录” 设置为 *
 - “记录值” 就是 GitHub 的 yourname.github.io 域名
 
-![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/dns_setup.png)
+![](https://raw.githubusercontent.com/yingw/yingw.github.io/master/assets/images/201806/20180605_dns_setup.png)
 
 最后回到我们的项目代码中，在根目录创建一个 CNAME 文件，文件内容就是一行上面申请的域名，来告诉 GitHub 运行这个域名引来的访问可以访问我们的空间。提交该文件。过一会等 GitHub Pages 编译好，就可以通过我们自己的域名访问博客了。
 
