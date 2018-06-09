@@ -113,7 +113,6 @@ TBD，有在线工具
 
 部分页面由于 json/javascript 格式问题和 Thymeleaf 冲突，比如 charts/flot.html 改成：
 
-<html xmlns:th="http://www.thymeleaf.org">
 
 ```html
 <script th:inline="none">
@@ -123,6 +122,8 @@ TBD，有在线工具
 
 Thymeleaf 的一大好处就是可以直接打开 html 进行页面测试而不需要启动服务器。编辑各 stylesheet 和 javascript 的应用地址，改为和当前页面相对，如：
 ```html
+<html xmlns:th="http://www.thymeleaf.org">
+
 <link rel="stylesheet" href="../static/bower_components/bootstrap/dist/css/bootstrap.min.css" th:href="{/bower_components/bootstrap/dist/css/bootstrap.min.css}">
 <script src="../static/bower_components/jquery/dist/jquery.min.js" th:src="@{/bower_components/jquery/dist/jquery.min.js}"></script>
 ```
