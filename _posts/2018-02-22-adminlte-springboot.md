@@ -7,7 +7,7 @@ key: 2018-02-22-adminlte-springboot
 
 # Spring Boot 和 AdminLTE 的集成
 
-AdminLTE 是个开源的管理模板，首页：http://adminlte.io/，GitHub地址：https://github.com/almasaeed2010/AdminLTE，目前有 2w+ start，100 多个 contributor，可以说是非常出名的开源管理模板了。
+AdminLTE 是个开源的管理模板，首页：http://adminlte.io/，GitHub地址：https://github.com/almasaeed2010/AdminLTE，目前有 2w+ star，100 多个 contributor，可以说是非常出名的开源管理模板了。
 
 ![image](https://adminlte.io/img/AdminLTE2.1.png)
 
@@ -399,12 +399,6 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 	<artifactId>bootstrap-daterangepicker</artifactId>
 	<version>2.1.27</version>
 </dependency>
-		<!--?? https://github.com/bootstrap-wysiwyg/bootstrap3-wysiwyg 0.3.3 -->
-		<!--<dependency>-->
-		<!--<groupId>org.webjars.bower</groupId>-->
-		<!--<artifactId>bootstrap3-wysihtml5-bower</artifactId>-->
-		<!--<version>0.3.3</version>-->
-		<!--</dependency>-->
 <!--moment-->
 <dependency>
 	<groupId>org.webjars.bower</groupId>
@@ -453,12 +447,6 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 	<artifactId>ckeditor</artifactId>
 	<version>4.8.0</version>
 </dependency>
-		<!--fullcalendar-->
-		<!--<dependency>-->
-			<!--<groupId>org.webjars.npm</groupId>-->
-			<!--<artifactId>fullcalendar</artifactId>-->
-			<!--<version>3.8.2</version>-->
-		<!--</dependency>-->
 <!--PACE (update from original plugins-->
 <dependency>
 	<groupId>org.webjars.bower</groupId>
@@ -477,31 +465,6 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 	<artifactId>datatables.net-bs</artifactId>
 	<version>2.1.1</version>
 </dependency>
-<!--		<dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>datatables-plugins</artifactId>
-            <version>1.10.16</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>datatables.net-buttons</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>datatables.net-buttons-bs</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>datatables.net-select</artifactId>
-            <version>1.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>datatables.net-select-bs</artifactId>
-            <version>1.2.2</version>
-        </dependency>-->
 <!--fastclick-->
 <dependency>
 	<groupId>org.webjars.bower</groupId>
@@ -520,12 +483,6 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 	<artifactId>jquery-ui</artifactId>
 	<version>1.11.4</version>
 </dependency>
-<!--layer-->
-<!--<dependency>-->
-<!--<groupId>org.webjars.bower</groupId>-->
-<!--<artifactId>github-com-sentsin-layer</artifactId>-->
-<!--<version>3.0.3</version>-->
-<!--</dependency>-->
 <!--metisMenu-->
 <dependency>
 	<groupId>org.webjars</groupId>
@@ -544,12 +501,6 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 	<artifactId>pace</artifactId>
 	<version>1.0.2</version>
 </dependency>
-<!-- switchery for checkbox -->
-<!--<dependency>-->
-<!--<groupId>org.webjars.bower</groupId>-->
-<!--<artifactId>switchery</artifactId>-->
-<!--<version>0.8.2</version>-->
-<!--</dependency>-->
 <!-- sweetalert -->
 <dependency>
 	<groupId>org.webjars.npm</groupId>
@@ -580,10 +531,194 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 
 ## Bower
 
-最后一种方式，还可以使用 Bower 来在编译时生成依赖文件。需要用到 maven-frontend-plugin，安装 node 和 bower
+最后一种方式，还可以使用 Bower 来在编译时生成依赖文件。需要用到 frontend-maven-plugin，安装 node 和 bower
 
+### node 配置
+
+package.json
+```json
+{
+  "name": "BootifulAdminLTE",
+  "version": "1.0.0",
+  "description": "Bootiful-AdminLTE application",
+  "dependencies": {
+    "bower": "~1.8.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yingw/bootiful-adminlte.git"
+  },
+  "author": "yinguowei",
+  "license": "MIT"
+}
+```
+
+### Bower 配置
 AdminLTE 本身就用了 bower 来管理依赖，拷贝项目中的 bower.json 到根目录，创建 .bowerrc
 
+bower.json
+```json
+{
+  "name": "admin-lte",
+  "homepage": "https://adminlte.io",
+  "authors": [
+    "Abdullah Almsaeed <abdullah@almsaeedstudio.com>"
+  ],
+  "description": "Admin dashboard and control panel template",
+  "main": [
+    "index2.html",
+    "dist/css/AdminLTE.css",
+    "dist/js/adminlte.js",
+    "build/less/AdminLTE.less"
+  ],
+  "keywords": [
+    "css",
+    "js",
+    "html",
+    "template",
+    "admin",
+    "bootstrap",
+    "theme",
+    "backend",
+    "responsive"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "/.*",
+    "node_modules",
+    "bower_components",
+    "composer.json",
+    "documentation"
+  ],
+  "dependencies": {
+    "bootstrap-slider": "*",
+    "chart.js": "1.0.*",
+    "ckeditor": "^4.7.0",
+    "bootstrap-colorpicker": "^2.5.1",
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.2.1",
+    "datatables.net": "^1.10.15",
+    "datatables.net-bs": "^2.1.1",
+    "bootstrap-datepicker": "^1.7.0",
+    "bootstrap-daterangepicker": "^2.1.25",
+    "moment": "^2.18.1",
+    "fastclick": "^1.0.6",
+    "Flot": "flot#^0.8.3",
+    "fullcalendar": "^3.4.0",
+    "inputmask": "jquery.inputmask#^3.3.7",
+    "ion.rangeSlider": "ionrangeslider#^2.2.0",
+    "jvectormap": "^2.0.4",
+    "jquery-knob": "^1.2.13",
+    "morris.js": "^0.5.1",
+    "PACE": "pace#^1.0.2",
+    "select2": "^4.0.3",
+    "jquery-slimscroll": "slimscroll#^1.3.8",
+    "bootstrap-timepicker": "^0.5.2",
+    "jquery-sparkline": "^2.1.3",
+    "font-awesome": "^4.7.0",
+    "Ionicons": "ionicons#^2.0.1",
+    "jquery-ui": "1.11.4"
+  },
+  "resolutions": {
+    "jquery": "^3.2.1"
+  }
+}
+
+```
+
+可以在最后再加入些从 plugins 切换来的依赖
+```json
+    "jquery-validation": "^1.17.0",
+    "datatables-plugins": "^1.10.15",
+    "iCheck": "^1.0.2",
+    "html5shiv": "^3.7.3",
+    "respond": "Respond#^1.4.2",
+    "datatables-i18n": "^1.0.4",
+    "zTree": "^3.5.33",
+    "switchery": "^0.8.2"
+```
+有版本冲突的话可以在最后的 resolutions 里面添加定义
+```json
+  "resolutions": {
+    "fastclick": "^1.0.6",
+    "jquery": "^3.2.1"
+  }
+```
+
+.bowerrc
+```json
+{
+  "directory" : "src/main/resources/static/bower_components",
+  "allow_root": true
+}
+```
+指定输出目录（默认根目录），并允许 root 执行（在 Linux 下打包用）
+
+### frontend-maven-plugin
+
+在 pom 里面定义
+```xml
+    <properties>
+        <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
+        <node.version>v8.10.0</node.version>
+        <npm.version>5.6.0</npm.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                            <!-- if you don't need to download from these 3rd party registry, comments these -->
+                            <nodeDownloadRoot>https://npm.taobao.org/mirrors/node/</nodeDownloadRoot>
+                            <npmDownloadRoot>https://registry.npm.taobao.org/npm/-/</npmDownloadRoot>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bower install</id>
+                        <goals>
+                            <goal>bower</goal>
+                        </goals>
+                        <configuration>
+                            <bowerInheritsProxyConfigFromMaven>false</bowerInheritsProxyConfigFromMaven>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+1. install-node-and-npm: 安装 node 和 npm，并使用的淘宝镜像
+2. npm: 执行 npm install，禁用 maven 的代理
+3. bower: 执行 bower install，禁用 maven 的代理
+
+这样就会在 static 目录创建出 bower_components 并下载好所有依赖，第一次比较慢，之后就快了。
+
+运行 `mvn spring-boot:run` 就可以编译执行
 
 ## 使用本项目
 
