@@ -5,10 +5,10 @@ tags: UReport
 key: 2018-05-27-ureport-cache
 ---
 
-# UReport 缓存
+# UReport 的缓存设置
 
 ## 描述
-默认情况下，UReport 有设置 HTTPSession 来缓存报表，并且还有个内置的内存缓存来缓存报表定义。
+默认情况下，[UReport](https://github.com/youseries/ureport) 有设置 HTTPSession 来缓存报表，并且还有个内置的内存缓存来缓存报表定义。
 
 注意这是两种缓存：
 
@@ -137,7 +137,7 @@ public class NullCache implements ReportDefinitionCache {
 
 ## 测试
 
-用 postman 提交 post 请求：http://localhost:8080/clearCache，观察多次打开后台的 log 以及断点，测试通过，开关生效。
+用 postman 提交 post 请求：http://localhost:8080/clearCache ，观察多次打开后台的 log 以及断点，测试通过，开关生效。
 
 最后：不高兴在 Reports 页面放一个提交按钮到 clearCache 请求。
 
@@ -149,3 +149,6 @@ public class NullCache implements ReportDefinitionCache {
 - com.bstek.ureport.console.designer.DesignerServletAction#deleteReportFile
 - com.bstek.ureport.console.cache.HttpSessionReportCache
 - com.bstek.ureport.cache.DefaultMemoryReportDefinitionCache
+
+Demo 项目地址
+https://github.com/yingw/ureport-demo

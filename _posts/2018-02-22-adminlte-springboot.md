@@ -21,19 +21,19 @@ AdminLTE 是个开源的管理模板，首页：http://adminlte.io/，GitHub地�
 - webjars：用 [Webjars](https://www.webjars.org/) 将前端库集成到后端 maven 的依赖 jar 中
 - bower：用 [Bower](https://bower.io/) 将前端依赖定义，在项目编译过程中创建前端资源
 
-## 初步集成
+## 1. 初步集成
 
-### 1. 创建 Spring Boot 项目
+### 1.1. 创建 Spring Boot 项目
 从 http://start.spring.io/ 或者 IDE 中创建一个 Spring Boot 项目，依赖：Web、Thymeleaf、DevTools
 
-### 2. 下载 AdminLTE
+### 1.2. 下载 AdminLTE
 从 AdminLTE 的 [GitHub release 页](https://github.com/almasaeed2010/AdminLTE/releases) 下载项目（v2.4.3），解压
 
 - 拷贝 pages 目录、index.html、index2.html、start.html 到 `templates` 目录
 - 拷贝 dist 下 css、img、js 目录、bower_components、plugins 目录到 `static` 目录
 > 注意的是 bower_components 内有上千文件，拷贝、编译都很慢，虽然用后面的 webjars 依赖可以避免，目前还是需要的，在项目代码中没有放，请自行拷贝。
 
-### 3. 修正路径
+### 1.3. 修正路径
 
 批量替换 pages 下面页面的一些相对路径，主要是 css、js、img 的引用
 - `../../dist/` 替换为 `../../`
@@ -41,7 +41,7 @@ AdminLTE 是个开源的管理模板，首页：http://adminlte.io/，GitHub地�
 - `"dist/` 替换为 `"./`
 - 还有一些上级目录的如 index.html 替换
 
-### 4. 动态跳转控制器
+### 1.4. 动态跳转控制器
 创建一个动态跳转控制器 AdminController
 ```java
 /**
@@ -81,7 +81,7 @@ spring.thymeleaf.suffix=
     }
 ```
 
-### 5. 字体和主题
+### 1.5. 字体和主题
 #### 临时去掉 Googleapi 字体
 由于 googleapi 的字体可能被墙，建议全部注释
 
@@ -109,7 +109,7 @@ font-family: 'Microsoft YaHei UI', 'Source Sans Pro', 'Helvetica Neue', Helvetic
 
 TBD，有在线工具
 
-### 其他修正
+### 1.6. 其他修正
 
 部分页面由于 json/javascript 格式问题和 Thymeleaf 冲突，比如 charts/flot.html 改成：
 
@@ -118,7 +118,7 @@ TBD，有在线工具
 <script th:inline="none">
 ```
 
-### 静态测试
+### 1.7. 静态测试
 
 Thymeleaf 的一大好处就是可以直接打开 html 进行页面测试而不需要启动服务器。编辑各 stylesheet 和 javascript 的应用地址，改为和当前页面相对，如：
 ```html
@@ -134,7 +134,7 @@ Thymeleaf 的一大好处就是可以直接打开 html 进行页面测试而不�
 
 经过这一系列集成，已经可以跑起来测试 http://localhost:8080，会自动跳转到 index2.html，可能有些路径的修正不完善或有问题，观察控制台 404 异常修正。
 
-## Thymeleaf Layout
+## 2. Thymeleaf Layout
 
 Layout 是让多个页面共用一套页面模板，这样很多重复的代码就不用重复编码了。
 
@@ -148,7 +148,7 @@ Layout 是让多个页面共用一套页面模板，这样很多重复的代码�
 
 在 layout 目录创建 `layout.html`，可以用 index2.html 拷贝过去修改
 
-### layout/layout.html
+### 2.1 layout/layout.html
 
 标题
 ```
@@ -218,7 +218,7 @@ js
 </tag>
 ```
 
-### index2.html
+### 2.2 index2.html
 
 修改 index2.html、start.html、blank.html 来使用 layout
 
@@ -297,7 +297,7 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 <div class="content-wrapper" layout:fragment="content">
 ```
 
-### login layout
+### 2.3 login layout
 
 还有些 404、500 页面使用的是和 layout 完全不同的布局，也可以提炼一个 `layout-login`，然后 login.html、logout.html、404、500 等都使用这个布局，这里就不重复了。
 
@@ -305,11 +305,11 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 
 通过使用 layout，可以将大部分页面共用代码提取出来，通过 fragment 插入页面的定制内容。但是这里大部分页面将来都不会是项目内必须使用的，就不全部改了。
 
-## Webjars
+## 3. Webjars
 
 上面介绍的基本就是静态集成的全部内容，不过前面提到，要把 bower_componenets 这个几千个文件夹的第三方 js、css 依赖库放到项目管理中，总是不太方便的，对于后端开发来说，最好前端的组件也是几个依赖来管理就最简单了，webjars 就是以这个目标设计的工具。
 
-### Webjars 依赖
+### 3.1 Webjars 依赖
 
 根据项目使用的库的版本，到 webjars 官网去搜索对应的定义即可，再把 maven 定义拷进来。
 
@@ -323,21 +323,7 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 </dependency>
 ```
 
-
-### 替换 bower_components 为 /webjars
-
-可以直接从 /webjars 开始应用这些依赖，如：
-```html
-<link rel="stylesheet" href="/webjars/bootstrap/3.3.7/dist/css/bootstrap.min.css">
-```
->注意个别有大小写问题：Ionicons，等等
-
-有些 plugins 目录的依赖也可以通过 webjars 改掉，可能是作者稍微做了修改，如 pace
-
-注意将来要是用上 Spring Security，记得把 webjars 上下文的资源设置为可以访问
-```java
-..., "/webjars/**").permitAll();
-```
+所有的声明
 
 ```xml
 <!-- Webjars begin -->
@@ -510,7 +496,23 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 
 <!-- Webjars end -->
 ```
-### Webjars Locator
+
+### 3.2 修正路径
+
+替换 bower_components 为 /webjars，可以直接从 /webjars 开始应用这些依赖，如：
+```html
+<link rel="stylesheet" href="/webjars/bootstrap/3.3.7/dist/css/bootstrap.min.css">
+```
+>注意个别有大小写问题：Ionicons，等等
+
+有些 plugins 目录的依赖也可以通过 webjars 改掉，可能是作者稍微做了修改，如 pace
+
+注意将来要是用上 Spring Security，记得把 webjars 上下文的资源设置为可以访问
+```java
+..., "/webjars/**").permitAll();
+```
+
+### 3.3 Webjars Locator
 
 还有个 Webjars 的 Locator 可以用来自动检索版本，写引用 url 的时候就可以连版本号也省略了。
 
@@ -525,15 +527,15 @@ js，页面自定义的 js 可以放到 customScript fragment 里面去
 </dependency>
 ```
 
-### 使用 webjars 的限制
+### 3.4 使用 webjars 的限制
 
-使用 webjars，也有缺点，就是在静态测试的时候，没法直接应用 jar 内的样式和脚本，所以用 webjars 的时候就不能做静态测试了；好处是不用在代码库中存着那上千个依赖。
+使用 webjars，也有缺点，就是在静态测试的时候，没法直接引用 jar 内的样式和脚本，所以用 webjars 的时候就不能做静态测试了；好处是不用在代码库中存着那上千个依赖。各有取舍吧。
 
-## Bower
+## 4. Bower
 
 最后一种方式，还可以使用 Bower 来在编译时生成依赖文件。需要用到 frontend-maven-plugin，安装 node 和 bower
 
-### node 配置
+### 4.1 node 配置
 
 package.json
 ```json
@@ -553,7 +555,10 @@ package.json
 }
 ```
 
-### Bower 配置
+- 也可以根目录执行 `npm init`，创建 `package.json`，加上 bower：`npm install bower --save`
+- 建议加上 description、repository，否则会有一些告警
+
+### 4.2 Bower 配置
 AdminLTE 本身就用了 bower 来管理依赖，拷贝项目中的 bower.json 到根目录，创建 .bowerrc
 
 bower.json
@@ -654,7 +659,9 @@ bower.json
 ```
 指定输出目录（默认根目录），并允许 root 执行（在 Linux 下打包用）
 
-### frontend-maven-plugin
+### 4.3 frontend-maven-plugin
+
+使用 [frontend-maven-plugin](https://github.com/eirslett/frontend-maven-plugin) 来安装 Node 和 Bower。
 
 在 pom 里面定义
 ```xml
@@ -712,9 +719,9 @@ bower.json
     </build>
 ```
 
-1. install-node-and-npm: 安装 node 和 npm，并使用的淘宝镜像
-2. npm: 执行 npm install，禁用 maven 的代理
-3. bower: 执行 bower install，禁用 maven 的代理
+- install-node-and-npm: 安装 node 和 npm，并使用的淘宝镜像
+- npm: 执行 npm install，禁用 maven 的代理
+- bower: 执行 bower install，禁用 maven 的代理
 
 这样就会在 static 目录创建出 bower_components 并下载好所有依赖，第一次比较慢，之后就快了。
 
@@ -726,6 +733,8 @@ clone 后，由于 master 分支是基于静态依赖，但是没有提交 bower
 
 1. 第一种方式自己下载 AdminLTE 后解压该目录到 static 目录
 2. 第二种方式直接用 webjars 分支
-3. 第三种方式先切换到 bower 分支，编译完成就自动下载在 static 目录了，再切换回 static 目录或者就使用 bower 分支
+3. 第三种方式先切换到 bower 分支，编译完成就自动下载在 static 目录了，再切换回 static 目录或者直接使用 bower 分支
 
 个人建议用 webjars 分支，如果对 node、bower 很熟悉也不在乎超多文件打包就使用 bower 分支。
+
+详细的命令查看项目首页 README：https://github.com/yingw/bootiful-adminlte.git
