@@ -239,6 +239,173 @@ nginx -s reload
 
 这样就可以通过 [http://zentao.wilmartest.cn](http://zentao.wilmartest.cn ) 来访问了
 
+## 集成 LDAP
+
+禅道开源版默认没有集成 LDAP （专业版有），需要用插件来实现，这里使用了 插件 [iboxpay/ldap](iboxpay/ldap)
+
+### 修改 Dockerfile
+
+新的 Dockerfile
+
+```dockerfile
+FROM php:7.2.8-apache-stretch
+
+LABEL maintainer="yinguowei@gmail.com"
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN set -x \
+    && apt-get -y update \
+    && apt-get install -y --no-install-recommends apt-utils unzip libldap2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装禅道需要的组件
+RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
+  && docker-php-ext-install -j$(nproc) pdo_mysql \
+  && docker-php-ext-install ldap \
+  && mkdir /php_session_path \
+  && chmod o=rwx -R /php_session_path \
+  && echo "session.save_path = \"/php_session_path\"">>/usr/local/etc/php/php.ini
+
+ENV ZENTAO_VERSION 10.4
+
+# 获取源码包
+ADD http://dl.cnezsoft.com/zentao/$ZENTAO_VERSION/ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
+
+# 解压
+RUN unzip /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip && rm -f /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip
+
+WORKDIR /var/www/html/zentaopms
+
+# 准备工作，目录，权限
+RUN touch ./www/ok.txt \
+  && mkdir -p ./lib/ldap \
+  && chmod 777 . \
+  && chmod -R 777 ./lib/ldap \
+  && chmod -R 777 ./module/user/ext \
+  && mkdir -p /var/www/html/zentaopms/tmp/backup \
+  && chmod 777 /var/www/html/zentaopms/tmp/backup
+
+# LDAP 插件
+RUN curl -o ./module/extension/ext/ldap-master.zip https://codeload.github.com/iboxpay/ldap/zip/master \
+  && unzip ./module/extension/ext/ldap-master.zip -d ./module/extension/ext/ \
+  && mv ./module/extension/ext/ldap-master ./module/extension/ext/ldap \
+  && cp -r ./module/extension/ext/ldap/lib/* ./lib/ \
+  && cp -r ./module/extension/ext/ldap/module/* ./module/ \
+  && mkdir -p ./tmp/extension/ \
+  && mv ./module/extension/ext/ldap-master.zip ./tmp/extension/ldap.zip
+
+# 加上自动跳转页面  
+RUN echo "<html>\n<head>\n<meta http-equiv=\"refresh\" content=\"0;url=/zentaopms/www/\">\n</head>\n</html>" > /var/www/html/index.html
+
+# 备份目录挂载卷
+VOLUME /var/www/html/zentaopms/tmp/backup
+```
+
+**代码说明**
+
+相比较原版，主要是安装的插件和进行一些初始设置
+
+```bash
+apt-get install -y --no-install-recommends libldap2-dev
+docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/
+docker-php-ext-install ldap
+```
+
+这些是运行 ldap 需要安装的环境组件和设置
+
+```bash
+touch ./www/ok.txt \
+  && mkdir -p ./lib/ldap \
+  && chmod 777 . \
+  && chmod -R 777 ./lib/ldap
+```
+
+一些设置，ok.text 是禅道检测运行安装插件用的
+
+下载并解压插件
+
+```
+# LDAP 插件
+RUN curl -o ./module/extension/ext/ldap-master.zip https://codeload.github.com/iboxpay/ldap/zip/master \
+  && unzip ./module/extension/ext/ldap-master.zip -d ./module/extension/ext/ \
+  && mv ./module/extension/ext/ldap-master ./module/extension/ext/ldap \
+  && cp -r ./module/extension/ext/ldap/lib/* ./lib/ \
+  && cp -r ./module/extension/ext/ldap/module/* ./module/ \
+  && mkdir -p ./tmp/extension/ \
+  && mv ./module/extension/ext/ldap-master.zip ./tmp/extension/ldap.zip
+```
+
+这个和官方安装插件的方式不太一样，官方推荐的插件安装方式是在启动后到后台选择安装；这里只是把插件下载后直接解压到插件对应的目录生效，效果一样，但是相对来说设置简单些。禅道用控制台安装插件大致做了这些操作：
+
+1. 插件不解压存放在：tmp/extension 目录
+2. 完整解压放在：/module/extension/ext 目录下子目录 ldap
+3. 插件中 lib, module 目录复制到项目根目录 lib, module 目录
+4. 往数据库表 `zt_extension` 中
+
+上面的实现了 1~3，没有往数据库中插入，所以是不会在插件列表中看到插件，没法进行设置的
+
+### 运行容器
+
+```bash
+docker run -d --name zentao -p :80 \
+  -e VIRTUAL_HOST=zentao.wilmartest.cn \
+  yinguowei/zentao:ldap
+```
+
+启动后还需要设置三个文件，参考 [禅道开源版ldap配置](https://blog.csdn.net/BigBoySunshine/article/details/80502068)
+
+1. 修改：module/user/ext/config/ldap.php  里关于 ldap 服务器地址和认证的配置，如：
+
+    ```php
+    $config->ldap->ldap_server = 'ldap://10.229.253.35:3268';
+    $config->ldap->ldap_protocol_version            = 3;
+    $config->ldap->ldap_follow_referrals            = 0;  
+    $config->ldap->ldap_root_dn                     = 'dc=wilmar,dc=cn';
+    $config->ldap->ldap_uid_field                   = 'sAMAccountName';
+    $config->ldap->ldap_bind_dn                     = 'yourdn@wilmar.cn';
+    $config->ldap->ldap_bind_passwd                 = 'yourpassword';
+    $config->ldap->ldap_organization               = '(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2))';
+    ```
+
+2. 禅道登录时输入的密码会在js里加密（*md5(md5(密码+随机数))*），这样在ldap_bind()中是不知道随机数是多少的，所以会认证失败。所以要跳过加密：/module/user/js/login.js 
+
+    ```php
+    if(password.length != 32 && typeof(md5) == 'function') $('input:password').val(password);
+    ```
+
+3. 修改ldap_bind()参数
+
+    和*ldap参数配置*里面的一样，bind_dn的格式为*user@domain,*而ldap拿到的不是这种格式，所以需要修改一下文件：  lib/ldap/ldap.class.php
+
+    ```php
+    # Attempt to bind with the DN and password
+    $name = $t_info[$i]['samaccountname'][0];
+    // if ( @ldap_bind( $t_ds, $t_dn, $p_password ) ) {
+    if ( @ldap_bind( $t_ds, "{$name}@wilmar.cn", $p_password ) ) {
+      $t_authenticated = true;
+      break;
+    }
+    ```
+
+    
+
+注意这些文件修改的时候都不要在进行内修改，尽量将修改过程脚本化下来，如使用 sed 命令，且不要把自己公司的账号地址发布到镜像中去
+
+重启下 apache ，在容器内 `service apache2 restart` ，会自动把容器停掉，然后重启容器就行了 `docker start zentao`（也有可能不需要这步重启）
+
+接下来就可以用 ldap 后 AD 用户登入，以及 admin 用户本地登入了。
+
+### 插件缺陷
+
+最后，这个 ldap 并没有做到完善，还存在以下几个问题
+
+1. 只做了登入验证，在系统内其他管理功能当需要输入管理密码的时候，如果管理员是 AD 用户，这时候是不会用设置的 AD 认证的，还是初始化用户的那个管理员密码，可以勉强适用，比如管理员建议保留原来的 admin（用户名不要改），或者个别 AD 账号设置管理员，同时用管理设置其在禅道内账号的密码和 AD 一致
+2. 没有界面配置，毕竟免费的
+3. 不支持多域
+4. 首先需要把客户端加密的代码去掉，对 AD 用户影响不大，数据库用户不安全，建议不要用
+5. domain 的地址除了配置还需要写到 ldap_bind() 函数里，代码和配置渗透
+
 ## 用 ECS 运行容器
 
 TBD
