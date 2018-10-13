@@ -7,6 +7,8 @@ key: 2018-10-11-docker-zentao
 
 # 用 Docker 构建禅道环境
 
+
+
 ## 禅道简介
 
 >禅道是个不错的国产的开源项目管理软件，在国内很受欢迎。有分开源版、专业版、和企业版，这里介绍的是开源版
@@ -54,11 +56,11 @@ RUN docker-php-ext-install -j$(nproc) pdo_mysql \
 ENV ZENTAO_VERSION 10.4
 
 # 获取源码包
+# 如果网络有问题就改成本地拷贝：ADD ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
 ADD http://dl.cnezsoft.com/zentao/$ZENTAO_VERSION/ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
-
-# 解压
 RUN unzip /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip && rm -f /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip
 
+# 加上自动跳转页面  
 RUN echo "<html>\n<head>\n<meta http-equiv=\"refresh\" content=\"0;url=/zentaopms/www/\">\n</head>\n</html>" > /var/www/html/index.html
 
 # 备份目录挂载卷
@@ -185,7 +187,7 @@ volumes:
   zentao_mysql_data:
 ```
 
-> 注意可能需要修改 docker-compose.yml 里设定的 端口
+> 根据需要修改 docker-compose.yml 里设定的 端口
 
 启动
 
@@ -193,7 +195,7 @@ volumes:
 docker-compose up -d
 ```
 
-数据库就可以直接用 mysql hostname 连接
+数据库就可以直接用 `mysql` 作为 hostname 连接
 
 ```php
 <?php
@@ -224,8 +226,8 @@ docker-compose rm -fs
 
 建议通过 Nginx 设置反向代理到禅道的镜像地址，另外还使用了 [docker-gen](https://github.com/jwilder/docker-gen) 配置 Nginx 和 docker 更方便。
 
-1. 启动 Nginx
-2. 启动 docker-gen
+1. 启动 Nginx 略
+2. 启动 docker-gen 略
 3. 启动镜像时候的设置，增加 VIRTUAL_HOST 和 VIRTUAL_PORT （默认80）设置
 
 ```bash
@@ -270,30 +272,30 @@ RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
 ENV ZENTAO_VERSION 10.4
 
 # 获取源码包
-ADD http://dl.cnezsoft.com/zentao/$ZENTAO_VERSION/ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
-
-# 解压
+#ADD http://dl.cnezsoft.com/zentao/$ZENTAO_VERSION/ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
+ADD ZenTaoPMS.$ZENTAO_VERSION.stable.zip /var/www/html/
 RUN unzip /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip && rm -f /var/www/html/ZenTaoPMS.$ZENTAO_VERSION.stable.zip
 
 WORKDIR /var/www/html/zentaopms
 
 # 准备工作，目录，权限
-RUN touch ./www/ok.txt \
-  && mkdir -p ./lib/ldap \
+RUN touch www/ok.txt \
+  && mkdir -p lib/ldap \
   && chmod 777 . \
-  && chmod -R 777 ./lib/ldap \
-  && chmod -R 777 ./module/user/ext \
+  && chmod -R 777 lib/ldap \
+  && chmod -R 777 module/user/ext \
   && mkdir -p /var/www/html/zentaopms/tmp/backup \
   && chmod 777 /var/www/html/zentaopms/tmp/backup
 
 # LDAP 插件
-RUN curl -o ./module/extension/ext/ldap-master.zip https://codeload.github.com/iboxpay/ldap/zip/master \
-  && unzip ./module/extension/ext/ldap-master.zip -d ./module/extension/ext/ \
-  && mv ./module/extension/ext/ldap-master ./module/extension/ext/ldap \
-  && cp -r ./module/extension/ext/ldap/lib/* ./lib/ \
-  && cp -r ./module/extension/ext/ldap/module/* ./module/ \
-  && mkdir -p ./tmp/extension/ \
-  && mv ./module/extension/ext/ldap-master.zip ./tmp/extension/ldap.zip
+#RUN curl -o module/extension/ext/ldap-master.zip https://codeload.github.com/iboxpay/ldap/zip/master \
+ADD /ldap-master.zip module/extension/ext/
+RUN unzip module/extension/ext/ldap-master.zip -d module/extension/ext/ \
+  && mv module/extension/ext/ldap-master module/extension/ext/ldap \
+  && cp -r module/extension/ext/ldap/lib/* lib/ \
+  && cp -r module/extension/ext/ldap/module/* module/ \
+  && mkdir -p tmp/extension/ \
+  && mv module/extension/ext/ldap-master.zip tmp/extension/ldap.zip
 
 # 加上自动跳转页面  
 RUN echo "<html>\n<head>\n<meta http-equiv=\"refresh\" content=\"0;url=/zentaopms/www/\">\n</head>\n</html>" > /var/www/html/index.html
@@ -325,7 +327,7 @@ touch ./www/ok.txt \
 
 下载并解压插件
 
-```
+```dockerfile
 # LDAP 插件
 RUN curl -o ./module/extension/ext/ldap-master.zip https://codeload.github.com/iboxpay/ldap/zip/master \
   && unzip ./module/extension/ext/ldap-master.zip -d ./module/extension/ext/ \
@@ -352,6 +354,8 @@ docker run -d --name zentao -p :80 \
   -e VIRTUAL_HOST=zentao.wilmartest.cn \
   yinguowei/zentao:ldap
 ```
+
+### 启动后设置 ldap
 
 启动后还需要设置三个文件，参考 [禅道开源版ldap配置](https://blog.csdn.net/BigBoySunshine/article/details/80502068)
 
@@ -388,13 +392,105 @@ docker run -d --name zentao -p :80 \
     }
     ```
 
-    
+容器内不可以编辑文件的话，把文件在外面编辑好拷贝进去
+```bash
+docker cp ldap.class.php zentao:/var/www/html/zentaopms/lib/ldap/ldap.class.php
+docker cp login.js zentao:/var/www/html/zentaopms/module/user/js/login.js
+docker cp ldap.php zentao:/var/www/html/zentaopms/module/user/ext/config/ldap.php
+```
 
-注意这些文件修改的时候都不要在进行内修改，尽量将修改过程脚本化下来，如使用 sed 命令，且不要把自己公司的账号地址发布到镜像中去
+注意这些文件修改的时候都不要直接在进行内修改，尽量将修改过程脚本化下来，后面章节还会介绍用 sed 命令，且不要把自己公司的账号地址发布到镜像中去
 
 重启下 apache ，在容器内 `service apache2 restart` ，会自动把容器停掉，然后重启容器就行了 `docker start zentao`（也有可能不需要这步重启）
 
 接下来就可以用 ldap 后 AD 用户登入，以及 admin 用户本地登入了。
+
+### 可配置化
+
+上面的做法是把配置文件在外面设置好拷贝覆盖，但是按照十二范式的推荐，首先过程没有脚本，其次代码不可幂等，还是建议将配置参数化并自动写入配置文件
+
+一共新增以下环境变量（等号右边的既是默认值）
+
+```bash
+export LDAP_HOST=10.229.253.36
+export LDAP_PORT=389
+export LDAP_ROOT_DN=dc=wilmar,dc=cn
+export LDAP_UID_FIELD=sAMAccountName
+export LDAP_BIND_DN=yourdn@wilmar.cn
+export LDAP_BIND_PASSWORD=yourpassword
+export LDAP_DOAMIN=wilmar.cn
+```
+
+Dockerfile 里设置
+
+```dockerfile
+ENV LDAP_HOST=10.229.253.36
+ENV LDAP_PORT=389
+ENV LDAP_ROOT_DN=dc=wilmar,dc=cn
+ENV LDAP_UID_FIELD=sAMAccountName
+ENV LDAP_BIND_DN=yourdn@wilmar.cn
+ENV LDAP_BIND_PASSWORD=yourpassword
+ENV LDAP_DOMAIN=wilmar.cn
+```
+
+一开始尝试将环境变量值写到 PHP，后来发现 RUN 命令是在镜像编译时写进去的环境变量默认值，所以要改成在 PHP 内获取环境变量
+
+（以下是环境变量值写入，作废）
+```bash
+sed -i 's/^\$config->ldap->ldap_server.*$/\$config->ldap->ldap_server = '\''ldap:\/\/'$LDAP_HOST':'$LDAP_PORT\'';/' ldap.php
+sed -i 's/^\$config->ldap->ldap_root_dn.*$/\$config->ldap->ldap_root_dn = '\'$LDAP_ROOT_DN\'';/' ldap.php
+sed -i 's/^\$config->ldap->ldap_uid_field.*$/\$config->ldap->ldap_uid_field = '\'$LDAP_UID_FIELD\'';/' ldap.php
+sed -i 's/^\$config->ldap->ldap_bind_dn.*$/\$config->ldap->ldap_bind_dn = '\'$LDAP_BIND_DN\'';/' ldap.php
+sed -i 's/^\$config->ldap->ldap_bind_passwd.*$/\$config->ldap->ldap_bind_passwd = '\'$LDAP_BIND_PASSWORD\'';/' ldap.php
+sed -i 's/#\$config->ldap->ldap_organization/\$config->ldap->ldap_organization/' ldap.php
+```
+
+>注：最后一行是默认启用只检测激活用户，不需要可以手动注释掉
+
+Dockerfile 里三个文件的更新写法：
+
+```dockerfile
+# ldap.php
+RUN sed -i 's/^\$config->ldap->ldap_server.*$/\$config->ldap->ldap_server = '\''ldap:\/\/'\'' \. getenv('\''LDAP_HOST'\'') \. '\'':'\'' \. getenv('\''LDAP_PORT'\'');/' module/user/ext/config/ldap.php \
+  && sed -i 's/^\$config->ldap->ldap_root_dn.*$/\$config->ldap->ldap_root_dn = getenv('\''LDAP_ROOT_DN'\'');/' module/user/ext/config/ldap.php \
+  && sed -i 's/^\$config->ldap->ldap_uid_field.*$/\$config->ldap->ldap_uid_field = getenv('\''LDAP_UID_FIELD'\'');/' module/user/ext/config/ldap.php \
+  && sed -i 's/^\$config->ldap->ldap_bind_dn.*$/\$config->ldap->ldap_bind_dn = getenv('\''LDAP_BIND_DN'\'');/' module/user/ext/config/ldap.php \
+  && sed -i 's/^\$config->ldap->ldap_bind_passwd.*$/\$config->ldap->ldap_bind_passwd = getenv('\''LDAP_BIND_PASSWORD'\'');/' module/user/ext/config/ldap.php \
+  && sed -i 's/#\$config->ldap->ldap_organization/\$config->ldap->ldap_organization/' module/user/ext/config/ldap.php
+
+# login.js
+RUN sed -i 's/md5(md5(password) + rand)/password/' module/user/js/login.js
+
+# ldap.class.php 
+# $t_dn = $t_info[$i]['dn']; 改为：  $t_dn = "{$t_info[$i]['samaccountname'][0]}@{$_ENV['LDAP_DOMAIN']}";
+RUN sed -i 's/$t_dn =.*$/$t_dn = $t_info[$i]['\''samaccountname'\''][0] . "@" . $_ENV['\''LDAP_DOMAIN'\''];/' lib/ldap/ldap.class.php
+```
+
+注意几点
+1. sed 里表达式中特殊字符需要转义，如 \/ \. \$
+2. 有个特殊的单引号要放到字符串外面再用 \' 转义，所以看上去是 '\''
+3. 变量可以在外面用 $ 引用
+4. 字符串拼接用 . 或者 `"{$xxx}"` 方式获取变量
+5. 环境变量用 `getenv('xxx')` 或者 `_EVN['xxx']` 获取，不能用 `$_SERVER['xxx']`
+
+用参数运行例子：
+
+```bash
+docker run -d -p 8080:80 --name=zentao -e LDAP_BIND_DN=yourdn@wilmar.cn -e LDAP_BIND_PASSWORD=yourpassword yinguowei/zentao:ldap
+```
+
+完整的例子
+
+```bash
+docker run -d -p 8080:80 --name=zentao \
+  -e LDAP_HOST=10.229.253.36 \
+  -e LDAP_PORT=389 \
+  -e LDAP_ROOT_DN=dc=wilmar,dc=cn \
+  -e LDAP_UID_FIELD=sAMAccountName \
+  -e LDAP_BIND_DN=yourdn@wilmar.cn \
+  -e LDAP_BIND_PASSWORD=yourpassword \
+  yinguowei/zentao:ldap
+```
 
 ### 插件缺陷
 
@@ -406,9 +502,10 @@ docker run -d --name zentao -p :80 \
 4. 首先需要把客户端加密的代码去掉，对 AD 用户影响不大，数据库用户不安全，建议不要用
 5. domain 的地址除了配置还需要写到 ldap_bind() 函数里，代码和配置渗透
 
+
 ## 用 ECS 运行容器
 
-TBD
+很简单，基本就是把 Dockerfile 往 ECS 推
 
 ## Docker Swarm 管理集群
 
