@@ -160,6 +160,12 @@ IMPORTANT NOTES:
 
 ### 其他命令
 
+查看证书
+
+```bash
+./certbot-auto certificates
+```
+
 校验证书
 ```bash
 openssl x509 -in /etc/letsencrypt/archive/oou.fun/cert1.pem -noout -text
@@ -171,7 +177,17 @@ openssl x509 -in /etc/letsencrypt/archive/oou.fun/cert1.pem -noout -text
 certbot-auto renew
 ```
 
-最好设置自动定时更新
+但是如果是使用了泛域名方式申请的证书，还需要指定手动方式并提供身份认证，如果是阿里云的服务器可以用一个 python 的[脚本](https://github.com/ywdblog/certbot-letencrypt-wildcardcertificates-alydns-au) 结合在阿里云申请的 accesskey 来完整更新，修改里面的 Key Id 和 Secret：
+
+在阿里云的域名配置里面把 `_acme-challenge` 这个设置删掉或改名空出来，然后执行：
+
+```bash
+./certbot-auto renew --cert-name oou.fun --manual-auth-hook /root/certbot-letencrypt-wildcardcertificates-alydns-au/python-version/au.sh
+```
+
+就会发现类似在申请时一样的在阿里云上生成这个配置并通过认证。
+
+最好设置 Nginx 重新加载，或者设置自动定时更新
 
 ```bash
 30 1 10 * * /usr/bin/certbot renew && /usr/sbin/nginx -s reload # 每月10日1点30分执行一次
